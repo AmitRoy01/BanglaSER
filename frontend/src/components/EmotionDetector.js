@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mic, Upload, Loader, Sparkles, Volume2, X } from 'lucide-react';
+import { Mic, Upload, Loader, Sparkles, Volume2, X, Pause, Square } from 'lucide-react'; 
 import axios from 'axios';
 import toast from 'react-hot-toast';
 import './EmotionDetector.css';
@@ -9,6 +9,7 @@ const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 const EmotionDetector = () => {
   const [isRecording, setIsRecording] = useState(false);
+  const [isPaused, setIsPaused] = useState(false); 
   const [isProcessing, setIsProcessing] = useState(false);
   const [result, setResult] = useState(null);
   const [audioFile, setAudioFile] = useState(null);
@@ -26,7 +27,6 @@ const EmotionDetector = () => {
     const arrayBuffer = await audioBlob.arrayBuffer();
     const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
     
-    // Convert to WAV
     const wavBuffer = audioBufferToWav(audioBuffer);
     const wavBlob = new Blob([wavBuffer], { type: 'audio/wav' });
     
@@ -42,7 +42,6 @@ const EmotionDetector = () => {
     let offset = 0;
     let pos = 0;
 
-    // Write WAV header
     const setUint16 = (data) => {
       view.setUint16(pos, data, true);
       pos += 2;
@@ -53,19 +52,19 @@ const EmotionDetector = () => {
     };
 
     // "RIFF" chunk descriptor
-    setUint32(0x46464952); // "RIFF"
-    setUint32(length - 8); // file length - 8
-    setUint32(0x45564157); // "WAVE"
+    setUint32(0x46464952); 
+    setUint32(length - 8); 
+    setUint32(0x45564157); 
 
     // "fmt " sub-chunk
-    setUint32(0x20746d66); // "fmt "
-    setUint32(16); // SubChunk1Size (16 for PCM)
-    setUint16(1); // AudioFormat (1 for PCM)
+    setUint32(0x20746d66);
+    setUint32(16); 
+    setUint16(1);
     setUint16(buffer.numberOfChannels);
     setUint32(buffer.sampleRate);
-    setUint32(buffer.sampleRate * buffer.numberOfChannels * 2); // byte rate
-    setUint16(buffer.numberOfChannels * 2); // block align
-    setUint16(16); // bits per sample
+    setUint32(buffer.sampleRate * buffer.numberOfChannels * 2); 
+    setUint16(buffer.numberOfChannels * 2); 
+    setUint16(16); 
 
     // "data" sub-chunk
     setUint32(0x61746164); // "data"
@@ -148,12 +147,44 @@ const EmotionDetector = () => {
     }
   };
 
+  // Pause Recording
+  const pauseRecording = () => {
+    if (mediaRecorderRef.current && isRecording && !isPaused) {
+      mediaRecorderRef.current.pause();
+      setIsPaused(true);
+
+      // Stop the timer
+      if (recordingTimerRef.current) {
+        clearInterval(recordingTimerRef.current);
+        recordingTimerRef.current = null;
+      }
+
+      toast.success('⏸️ Recording paused');
+    }
+  };
+
+  // Resume Recording
+  const resumeRecording = () => {
+    if (mediaRecorderRef.current && isRecording && isPaused) {
+      mediaRecorderRef.current.resume();
+      setIsPaused(false);
+
+      // Resume the timer
+      recordingTimerRef.current = setInterval(() => {
+        setRecordingTime((prev) => prev + 1);
+      }, 1000);
+
+      toast.success('🎙️ Recording resumed');
+    }
+  };
+
   // Stop Recording
   const stopRecording = () => {
     if (mediaRecorderRef.current && isRecording) {
       mediaRecorderRef.current.stop();
       mediaRecorderRef.current.stream.getTracks().forEach(track => track.stop());
       setIsRecording(false);
+      setIsPaused(false);
       
       // Stop timer
       if (recordingTimerRef.current) {
@@ -297,21 +328,54 @@ const EmotionDetector = () => {
             {/* Record Button */}
             <motion.button
               className={`action-btn record-btn ${isRecording ? 'recording' : ''}`}
-              onClick={isRecording ? stopRecording : startRecording}
+              onClick={() => {
+                if (isRecording) {
+                  if (isPaused) {
+                    resumeRecording();
+                  } else {
+                    pauseRecording();
+                  }
+                } else {
+                  startRecording();
+                }
+              }}
               disabled={isProcessing}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Mic size={24} className={isRecording ? 'mic-pulse' : ''} />
               {isRecording ? (
-                <span className="recording-text">
-                  <span className="recording-dot-inline">●</span>
-                  <span>REC {String(Math.floor(recordingTime / 60)).padStart(1, '0')}:{String(recordingTime % 60).padStart(2, '0')}</span>
-                </span>
+                isPaused ? (
+                  <>
+                    <Mic size={24} />
+                    <span>Resume</span>
+                  </>
+                ) : (
+                  <>
+                    <Pause size={24} />
+                    <span>Pause</span>
+                  </>
+                )
               ) : (
-                'Start Recording'
+                <>
+                  <Mic size={24} />
+                  <span>Start Recording</span>
+                </>
               )}
             </motion.button>
+
+            {/* Stop Button */}
+            {isRecording && (
+              <motion.button
+                className="action-btn stop-btn"
+                onClick={stopRecording}
+                disabled={isProcessing}
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+              >
+                <Square size={24} />
+                <span>Stop</span>
+              </motion.button>
+            )}
 
             {/* Upload Button */}
             <motion.button
