@@ -307,7 +307,7 @@ This project is open-source and available under the MIT License.
 ## 👨‍💻 Authors
 
 - Developed for Bangla Speech Emotion Recognition research
-- Built with ❤️ for Bengali speakers
+- Built for Bengali speakers
 
 ## 🙏 Acknowledgments
 
