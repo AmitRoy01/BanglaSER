@@ -1,4 +1,4 @@
-# 🇧🇩 BanglaSER - Bangla Speech Emotion Recognition Web Application
+# BanglaSER - Bangla Speech Emotion Recognition Web Application
 
 A full-stack web application for detecting emotions from Bangla speech using deep learning (LSTM). Users can record live audio or upload audio files to get real-time emotion predictions.
 
