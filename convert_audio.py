@@ -1,12 +1,3 @@
-"""
-Audio Format Converter Utility
-Converts M4A (and other formats) to WAV for BanglaSER
-
-Usage:
-    python convert_audio.py input.m4a
-    python convert_audio.py input.m4a output.wav
-"""
-
 import sys
 import os
 from pathlib import Path
@@ -113,7 +104,7 @@ def main():
         print("   For M4A files, please install FFmpeg first.")
         print("   See INSTALL_FFMPEG.md for instructions.\n")
     
-    # Try conversion methods
+
     print("Attempting conversion...")
     
     # Method 1: Try librosa/soundfile first (works without FFmpeg for some formats)
@@ -127,7 +118,7 @@ def main():
     
     # If all methods failed
     print("\n" + "="*50)
-    print("❌ Conversion failed with all methods.")
+    print("Conversion failed with all methods.")
     print("\nAlternative options:")
     print("1. Install FFmpeg (see INSTALL_FFMPEG.md)")
     print("2. Use online converter:")

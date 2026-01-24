@@ -109,7 +109,6 @@ const EmotionDetector = () => {
       };
 
       mediaRecorderRef.current.onstop = async () => {
-        // Create blob from recorded chunks
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         
         // Convert to WAV format
@@ -123,7 +122,7 @@ const EmotionDetector = () => {
           
         } catch (conversionError) {
           console.error('WAV conversion error:', conversionError);
-          // Fallback: use original blob
+
           const url = URL.createObjectURL(audioBlob);
           setAudioURL(url);
           setAudioFile(audioBlob);
@@ -247,7 +246,7 @@ const EmotionDetector = () => {
       if (error.code === 'ECONNABORTED') {
         errorMessage = 'Request timeout. Try again.';
       } else if (error.response && error.response.data) {
-        // Get the detailed error message from backend
+
         errorMessage = error.response.data.detail || 'Server error';
       } else if (error.request) {
         errorMessage = 'Cannot connect to server';

@@ -19,7 +19,7 @@ import uvicorn
 from typing import Dict
 
 # ==========================================
-# MODEL ARCHITECTURE (Must match training)
+# MODEL ARCHITECTURE 
 # ==========================================
 import torch.nn as nn
 
@@ -270,12 +270,10 @@ async def predict(file: UploadFile = File(...)):
                 temp_audio_path = temp_audio.name
             
             try:
-                # Try pydub first (requires FFmpeg)
                 try:
                     from pydub import AudioSegment
                     print("Trying pydub conversion...")
                     
-                    # Load M4A with pydub
                     audio_segment = AudioSegment.from_file(temp_audio_path, format=file_ext[1:])
                     
                     # Convert to wav in memory
@@ -297,7 +295,6 @@ async def predict(file: UploadFile = File(...)):
                     print(f"Pydub failed: {pydub_error}")
                     print("Trying librosa with file path...")
                     
-                    # Try librosa with file path
                     waveform_np, sr = librosa.load(temp_audio_path, sr=None, mono=False)
                     print(f"✅ M4A loaded via librosa: shape={waveform_np.shape}, sr={sr}")
                     
@@ -316,12 +313,9 @@ async def predict(file: UploadFile = File(...)):
                 except:
                     pass
         
-        # For other formats, try buffer-based loading
         if waveform is None:
             try:
-                # Reset buffer position
                 audio_buffer.seek(0)
-                # Try librosa with buffer
                 waveform_np, sr = librosa.load(audio_buffer, sr=None, mono=False)
                 print(f"✅ Audio loaded with librosa: shape={waveform_np.shape}, sr={sr}")
                 
@@ -373,7 +367,6 @@ async def predict(file: UploadFile = File(...)):
         
         print(f"Final tensor shape: {waveform.shape}")
         
-        # Predict
         result = predict_emotion(waveform, sr)
         
         return JSONResponse(content=result)
