@@ -319,6 +319,3 @@ This project is open-source and available under the MIT License.
 
 For questions or support, please open an issue on GitHub.
 
----
-
-**Made with 🇧🇩 for the Bangla-speaking community**
