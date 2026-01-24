@@ -304,8 +304,11 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 This project is open-source and available under the MIT License.
 
-## 👨‍💻 Authors
+## 👨‍💻 Developers
 
+- Amit Roy. Github: https://github.com/AmitRoy01
+- Swadhin Pal. Github: https://github.com/swadhinpal
+- Rony Majumder. Github: https://github.com/rony31416
 - Developed for Bangla Speech Emotion Recognition research
 - Built for Bengali speakers
 
